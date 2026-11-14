@@ -6,6 +6,9 @@
 # A barra inicial "/" ancora na raiz do projeto; a barra final "/" diz que é uma pasta.
 /assets/paid/
 
+# Traduções compiladas: o Godot gera a partir de localization/textos.csv ao importar.
+*.translation
+
 # Arquivos de sistema operacional
 Thumbs.db
 desktop.ini

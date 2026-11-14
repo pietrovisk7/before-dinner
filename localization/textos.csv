@@ -1,0 +1,8 @@
+keys,pt,en
+UI_EXAMINAR,E — examinar,E — examine
+UI_PEGAR,E — pegar,E — pick up
+UI_LER,E — ler,E — read
+UI_FECHAR,E / ESC — fechar,E / ESC — close
+UI_INVENTARIO_CHEIO,Inventário cheio,Inventory full
+ITEM_TESTE,[TODO] item de teste,[TODO] test item
+BILHETE_TESTE,[TODO] texto do bilhete de teste,[TODO] test note text
