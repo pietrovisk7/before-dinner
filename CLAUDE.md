@@ -19,6 +19,13 @@ Jogo de terror curto (30 a 45 min) em primeira pessoa, estilo PS1, feito no Godo
 - Assets pagos ficam em `assets/paid/`, que está no `.gitignore` e nunca vai para o GitHub.
 - Anote a licença de todo asset de terceiros que entrar no projeto (arquivo, autor, fonte, licença), para montar os créditos.
 
+## Testes
+
+- Godot (Steam): `C:\Program Files (x86)\Steam\steamapps\common\Godot Engine\godot.windows.opt.tools.64.exe`
+- Checagem de erros: `<godot> --headless --path . --quit-after 180`
+- Teste de interação: `<godot> --headless --path . res://tests/teste_interacao.tscn` (sai com código 0 se passar)
+- Rode os dois antes de cada commit que mexa em jogador, HUD, interagíveis ou autoloads. Headless não pega erro de shader nem testa visual: isso é com o Pietro.
+
 ## Escopo (não ultrapassar sem aprovação do Pietro)
 
 - Um mapa: casa, clareira e 4 trilhas (casa na árvore, riacho, poço, cabana), com bordas fechadas.
