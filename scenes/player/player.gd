@@ -1,9 +1,6 @@
 extends CharacterBody3D
-## Jogador em primeira pessoa: anda com WASD e olha com o mouse.
-## Sem pulo e sem corrida por enquanto.
-
-# @export faz a variável aparecer no Inspetor do Godot,
-# então dá para ajustar os valores sem abrir o código.
+## Jogador em primeira pessoa: anda com WASD, olha com o mouse e examina com E.
+## Sem pulo e sem corrida.
 
 ## Velocidade de caminhada em metros por segundo (uma criança andando ~2,5 m/s).
 @export var velocidade: float = 2.5
@@ -14,66 +11,85 @@ extends CharacterBody3D
 ## Ângulo máximo (em graus) para olhar para cima ou para baixo.
 @export var angulo_max_olhar: float = 85.0
 
-# @onready busca o nó só quando a cena já está pronta na árvore.
-# "$Cabeca" é um atalho para get_node("Cabeca").
 @onready var cabeca: Node3D = $Cabeca
+## Raio que sai do centro da tela; o alcance fica em target_position (no editor).
+@onready var raio: RayCast3D = $Cabeca/Camera3D/RaioInteracao
+
+## Objeto interagível na mira agora (null = nenhum).
+var alvo_atual: Interagivel = null
 
 
 func _ready() -> void:
-	# Posiciona a cabeça (e a câmera dentro dela) na altura definida.
 	cabeca.position.y = altura_camera
-	# Prende e esconde o cursor no centro da janela.
+	# O raio nasce dentro da cápsula do jogador; garante que ele não acerta o próprio corpo.
+	raio.add_exception(self)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
-# _unhandled_input recebe eventos que nenhuma interface (UI) consumiu antes.
-# Assim, no futuro, um menu aberto pode "engolir" o clique sem girar a câmera.
 func _unhandled_input(event: InputEvent) -> void:
+	# Com bilhete aberto, E ou ESC só fecham o bilhete; o resto é ignorado.
+	# Tratar isso AQUI (e não no HUD) evita que o mesmo ESC também solte o mouse.
+	if Jogo.bilhete_esta_aberto:
+		if event.is_action_pressed("interagir") or event.is_action_pressed("ui_cancel"):
+			Jogo.fechar_bilhete()
+			get_viewport().set_input_as_handled()
+		return
+
 	var mouse_preso: bool = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 
 	if event is InputEventMouseMotion and mouse_preso:
 		var movimento := event as InputEventMouseMotion
-		# screen_relative = quantos pixels o mouse andou desde o último evento,
-		# sem ser afetado pela escala da janela.
-		# Horizontal: gira o CORPO inteiro em volta do eixo Y.
+		# screen_relative não é afetado pela escala da janela nem do SubViewport.
 		rotate_y(-movimento.screen_relative.x * sensibilidade_mouse)
-		# Vertical: gira só a CABEÇA em volta do eixo X.
 		cabeca.rotate_x(-movimento.screen_relative.y * sensibilidade_mouse)
-		# Limita o ângulo para não dar "cambalhota" olhando para cima/baixo.
 		var limite: float = deg_to_rad(angulo_max_olhar)
 		cabeca.rotation.x = clampf(cabeca.rotation.x, -limite, limite)
 
+	elif event.is_action_pressed("interagir") and mouse_preso:
+		if _alvo_valido():
+			alvo_atual.interagir(self)
+			# O alvo pode ter sumido (item pego); força recalcular no próximo quadro.
+			_definir_alvo(null)
+
 	elif event.is_action_pressed("ui_cancel"):
-		# "ui_cancel" já vem pronto no Godot e corresponde ao ESC.
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 	elif event is InputEventMouseButton and event.is_pressed() and not mouse_preso:
-		# Clicar na janela com o mouse solto prende ele de novo.
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
-# _physics_process roda em ritmo fixo (60x por segundo por padrão),
-# sincronizado com a física. Movimento de corpos físicos vai sempre aqui.
 func _physics_process(delta: float) -> void:
-	# Gravidade: sem ela o personagem "flutuaria" ao sair de uma borda.
-	# Multiplicar por delta transforma aceleração (m/s²) em mudança de velocidade.
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	# get_vector junta 4 ações num Vector2 (x = esquerda/direita, y = frente/trás).
-	# O comprimento já vem limitado a 1, então andar na diagonal não fica mais rápido.
-	var entrada: Vector2 = Input.get_vector(
-		"mover_esquerda", "mover_direita", "mover_frente", "mover_tras"
-	)
+	var entrada: Vector2 = Vector2.ZERO
+	if not Jogo.bilhete_esta_aberto:
+		entrada = Input.get_vector("mover_esquerda", "mover_direita", "mover_frente", "mover_tras")
 
 	# Converte a entrada (relativa ao jogador) para uma direção no mundo.
-	# transform.basis contém a rotação do corpo; multiplicar "gira" o vetor
-	# para apontar para onde o jogador está virado.
 	var direcao: Vector3 = transform.basis * Vector3(entrada.x, 0.0, entrada.y)
-
-	# Só mexemos em X e Z; o Y fica com a gravidade.
 	velocity.x = direcao.x * velocidade
 	velocity.z = direcao.z * velocidade
-
-	# Move o corpo usando "velocity" e desliza ao encostar em paredes.
 	move_and_slide()
+
+	_atualizar_alvo()
+
+
+## Vê o que o raio está acertando e avisa o HUD quando o alvo muda.
+## O raio também enxerga paredes (camada 1), então não dá para examinar através delas.
+func _atualizar_alvo() -> void:
+	var novo: Interagivel = null
+	if raio.is_colliding():
+		novo = raio.get_collider() as Interagivel
+	var alvo_sumiu: bool = alvo_atual != null and not is_instance_valid(alvo_atual)
+	if novo != alvo_atual or alvo_sumiu:
+		_definir_alvo(novo)
+
+
+func _definir_alvo(novo: Interagivel) -> void:
+	alvo_atual = novo
+	Jogo.mira_mudou.emit(novo.chave_aviso if novo != null else "")
+
+
+func _alvo_valido() -> bool:
+	return alvo_atual != null and is_instance_valid(alvo_atual)
