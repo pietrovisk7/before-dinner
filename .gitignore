@@ -1,0 +1,12 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Assets pagos: licença não permite redistribuir, então NUNCA vão para o GitHub.
+# A barra inicial "/" ancora na raiz do projeto; a barra final "/" diz que é uma pasta.
+/assets/paid/
+
+# Arquivos de sistema operacional
+Thumbs.db
+desktop.ini
+.DS_Store
