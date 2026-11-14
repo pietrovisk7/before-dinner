@@ -1,0 +1,32 @@
+[gd_resource type="Environment" format=3]
+
+; Ambiente padrão do jogo: escuro, com névoa densa no estilo PS1.
+; Tudo aqui funciona no renderizador Compatibilidade (GL Compatibility).
+
+[resource]
+; --- Fundo ---
+; background_mode 1 = cor sólida. Usamos a MESMA cor da névoa,
+; para que objetos distantes se dissolvam no fundo sem emenda.
+background_mode = 1
+background_color = Color(0.06, 0.06, 0.07, 1)
+
+; --- Luz ambiente ---
+; ambient_light_source 2 = cor fixa. É a luz "de base" que chega em todo lugar,
+; até nas sombras. Valores baixos = cena escura, mas ainda legível.
+ambient_light_source = 2
+ambient_light_color = Color(0.4, 0.4, 0.45, 1)
+ambient_light_energy = 0.35
+
+; --- Névoa ---
+; fog_mode 1 = névoa por distância (depth): começa em fog_depth_begin
+; e fica totalmente opaca em fog_depth_end (em metros).
+fog_enabled = true
+fog_mode = 1
+fog_light_color = Color(0.06, 0.06, 0.07, 1)
+fog_light_energy = 1.0
+; No modo depth, fog_density é a opacidade máxima (1.0 = some por completo).
+fog_density = 1.0
+fog_depth_begin = 2.0
+fog_depth_end = 12.0
+; Curva < 1 faz a névoa "engrossar" mais cedo; > 1 deixa mais limpo perto.
+fog_depth_curve = 1.0

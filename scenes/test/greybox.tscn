@@ -1,0 +1,120 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
+[ext_resource type="Environment" path="res://environments/nevoa_padrao.tres" id="2_env"]
+
+[sub_resource type="StandardMaterial3D" id="mat_chao"]
+albedo_color = Color(0.3, 0.3, 0.3, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_caixa"]
+albedo_color = Color(0.6, 0.6, 0.6, 1)
+
+[sub_resource type="BoxMesh" id="mesh_chao"]
+material = SubResource("mat_chao")
+size = Vector3(30, 0.2, 30)
+
+[sub_resource type="BoxShape3D" id="shape_chao"]
+size = Vector3(30, 0.2, 30)
+
+[sub_resource type="BoxMesh" id="mesh_cubo_1m"]
+material = SubResource("mat_caixa")
+
+[sub_resource type="BoxShape3D" id="shape_cubo_1m"]
+
+[sub_resource type="BoxMesh" id="mesh_cubo_2m"]
+material = SubResource("mat_caixa")
+size = Vector3(2, 2, 2)
+
+[sub_resource type="BoxShape3D" id="shape_cubo_2m"]
+size = Vector3(2, 2, 2)
+
+[sub_resource type="BoxMesh" id="mesh_mesa"]
+material = SubResource("mat_caixa")
+size = Vector3(3, 0.8, 1.5)
+
+[sub_resource type="BoxShape3D" id="shape_mesa"]
+size = Vector3(3, 0.8, 1.5)
+
+[sub_resource type="BoxMesh" id="mesh_pilar"]
+material = SubResource("mat_caixa")
+size = Vector3(0.5, 3, 0.5)
+
+[sub_resource type="BoxShape3D" id="shape_pilar"]
+size = Vector3(0.5, 3, 0.5)
+
+[sub_resource type="BoxMesh" id="mesh_parede"]
+material = SubResource("mat_caixa")
+size = Vector3(6, 3, 0.3)
+
+[sub_resource type="BoxShape3D" id="shape_parede"]
+size = Vector3(6, 3, 0.3)
+
+[node name="Greybox" type="Node3D"]
+
+[node name="Chao" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+
+[node name="Malha" type="MeshInstance3D" parent="Chao"]
+mesh = SubResource("mesh_chao")
+
+[node name="Colisao" type="CollisionShape3D" parent="Chao"]
+shape = SubResource("shape_chao")
+
+[node name="Caixas" type="Node3D" parent="."]
+
+[node name="Cubo1m" type="StaticBody3D" parent="Caixas"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, -4)
+
+[node name="Malha" type="MeshInstance3D" parent="Caixas/Cubo1m"]
+mesh = SubResource("mesh_cubo_1m")
+
+[node name="Colisao" type="CollisionShape3D" parent="Caixas/Cubo1m"]
+shape = SubResource("shape_cubo_1m")
+
+[node name="Cubo2m" type="StaticBody3D" parent="Caixas"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1, -6)
+
+[node name="Malha" type="MeshInstance3D" parent="Caixas/Cubo2m"]
+mesh = SubResource("mesh_cubo_2m")
+
+[node name="Colisao" type="CollisionShape3D" parent="Caixas/Cubo2m"]
+shape = SubResource("shape_cubo_2m")
+
+[node name="Mesa" type="StaticBody3D" parent="Caixas"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, -8)
+
+[node name="Malha" type="MeshInstance3D" parent="Caixas/Mesa"]
+mesh = SubResource("mesh_mesa")
+
+[node name="Colisao" type="CollisionShape3D" parent="Caixas/Mesa"]
+shape = SubResource("shape_mesa")
+
+[node name="Pilar" type="StaticBody3D" parent="Caixas"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.5, 2)
+
+[node name="Malha" type="MeshInstance3D" parent="Caixas/Pilar"]
+mesh = SubResource("mesh_pilar")
+
+[node name="Colisao" type="CollisionShape3D" parent="Caixas/Pilar"]
+shape = SubResource("shape_pilar")
+
+[node name="Parede" type="StaticBody3D" parent="Caixas"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.5, 3)
+
+[node name="Malha" type="MeshInstance3D" parent="Caixas/Parede"]
+mesh = SubResource("mesh_parede")
+
+[node name="Colisao" type="CollisionShape3D" parent="Caixas/Parede"]
+shape = SubResource("shape_parede")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_env")
+
+[node name="LuzFraca" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 0, 5, 0)
+light_color = Color(1, 0.75, 0.55, 1)
+light_energy = 0.3
+shadow_enabled = false
