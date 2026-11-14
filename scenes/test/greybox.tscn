@@ -2,52 +2,73 @@
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1_player"]
 [ext_resource type="Environment" path="res://environments/nevoa_padrao.tres" id="2_env"]
-
-[sub_resource type="StandardMaterial3D" id="mat_chao"]
-albedo_color = Color(0.3, 0.3, 0.3, 1)
-
-[sub_resource type="StandardMaterial3D" id="mat_caixa"]
-albedo_color = Color(0.6, 0.6, 0.6, 1)
+[ext_resource type="Material" path="res://materials/ps1_chao_teste.tres" id="3_mat_chao"]
+[ext_resource type="Material" path="res://materials/ps1_caixa_teste.tres" id="4_mat_caixa"]
+[ext_resource type="Shader" path="res://shaders/ps1.gdshader" id="5_shader_ps1"]
+[ext_resource type="Script" path="res://scripts/interagiveis/item.gd" id="6_item"]
+[ext_resource type="Script" path="res://scripts/interagiveis/bilhete.gd" id="7_bilhete"]
 
 [sub_resource type="BoxMesh" id="mesh_chao"]
-material = SubResource("mat_chao")
+material = ExtResource("3_mat_chao")
 size = Vector3(30, 0.2, 30)
 
 [sub_resource type="BoxShape3D" id="shape_chao"]
 size = Vector3(30, 0.2, 30)
 
 [sub_resource type="BoxMesh" id="mesh_cubo_1m"]
-material = SubResource("mat_caixa")
+material = ExtResource("4_mat_caixa")
 
 [sub_resource type="BoxShape3D" id="shape_cubo_1m"]
 
 [sub_resource type="BoxMesh" id="mesh_cubo_2m"]
-material = SubResource("mat_caixa")
+material = ExtResource("4_mat_caixa")
 size = Vector3(2, 2, 2)
 
 [sub_resource type="BoxShape3D" id="shape_cubo_2m"]
 size = Vector3(2, 2, 2)
 
 [sub_resource type="BoxMesh" id="mesh_mesa"]
-material = SubResource("mat_caixa")
+material = ExtResource("4_mat_caixa")
 size = Vector3(3, 0.8, 1.5)
 
 [sub_resource type="BoxShape3D" id="shape_mesa"]
 size = Vector3(3, 0.8, 1.5)
 
 [sub_resource type="BoxMesh" id="mesh_pilar"]
-material = SubResource("mat_caixa")
+material = ExtResource("4_mat_caixa")
 size = Vector3(0.5, 3, 0.5)
 
 [sub_resource type="BoxShape3D" id="shape_pilar"]
 size = Vector3(0.5, 3, 0.5)
 
 [sub_resource type="BoxMesh" id="mesh_parede"]
-material = SubResource("mat_caixa")
+material = ExtResource("4_mat_caixa")
 size = Vector3(6, 3, 0.3)
 
 [sub_resource type="BoxShape3D" id="shape_parede"]
 size = Vector3(6, 3, 0.3)
+
+[sub_resource type="ShaderMaterial" id="mat_item_teste"]
+shader = ExtResource("5_shader_ps1")
+shader_parameter/cor = Color(0.8, 0.25, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="mesh_item_teste"]
+material = SubResource("mat_item_teste")
+size = Vector3(0.15, 0.15, 0.15)
+
+[sub_resource type="BoxShape3D" id="shape_item_teste"]
+size = Vector3(0.15, 0.15, 0.15)
+
+[sub_resource type="ShaderMaterial" id="mat_bilhete_teste"]
+shader = ExtResource("5_shader_ps1")
+shader_parameter/cor = Color(0.9, 0.88, 0.8, 1)
+
+[sub_resource type="BoxMesh" id="mesh_bilhete_teste"]
+material = SubResource("mat_bilhete_teste")
+size = Vector3(0.3, 0.02, 0.4)
+
+[sub_resource type="BoxShape3D" id="shape_bilhete_teste"]
+size = Vector3(0.3, 0.02, 0.4)
 
 [node name="Greybox" type="Node3D"]
 
@@ -118,3 +139,27 @@ transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 
 light_color = Color(1, 0.75, 0.55, 1)
 light_energy = 0.3
 shadow_enabled = false
+
+[node name="ObjetosTeste" type="Node3D" parent="."]
+
+[node name="ItemTeste" type="StaticBody3D" parent="ObjetosTeste"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.875, -7.8)
+script = ExtResource("6_item")
+chave_nome = "ITEM_TESTE"
+
+[node name="Malha" type="MeshInstance3D" parent="ObjetosTeste/ItemTeste"]
+mesh = SubResource("mesh_item_teste")
+
+[node name="Colisao" type="CollisionShape3D" parent="ObjetosTeste/ItemTeste"]
+shape = SubResource("shape_item_teste")
+
+[node name="BilheteTeste" type="StaticBody3D" parent="ObjetosTeste"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.81, -7.8)
+script = ExtResource("7_bilhete")
+chave_texto = "BILHETE_TESTE"
+
+[node name="Malha" type="MeshInstance3D" parent="ObjetosTeste/BilheteTeste"]
+mesh = SubResource("mesh_bilhete_teste")
+
+[node name="Colisao" type="CollisionShape3D" parent="ObjetosTeste/BilheteTeste"]
+shape = SubResource("shape_bilhete_teste")
