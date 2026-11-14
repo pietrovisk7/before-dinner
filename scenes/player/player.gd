@@ -17,6 +17,8 @@ extends CharacterBody3D
 
 ## Objeto interagível na mira agora (null = nenhum).
 var alvo_atual: Interagivel = null
+## Última chave de aviso enviada ao HUD (evita emitir o sinal todo quadro).
+var _aviso_mostrado: String = ""
 
 
 func _ready() -> void:
@@ -45,11 +47,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		var limite: float = deg_to_rad(angulo_max_olhar)
 		cabeca.rotation.x = clampf(cabeca.rotation.x, -limite, limite)
 
-	elif event.is_action_pressed("interagir") and mouse_preso:
+	elif event.is_action_pressed("interagir"):
 		if _alvo_valido():
 			alvo_atual.interagir(self)
-			# O alvo pode ter sumido (item pego); força recalcular no próximo quadro.
-			_definir_alvo(null)
+			# Atualiza na hora: se o item foi pego, o aviso some neste mesmo quadro.
+			_atualizar_alvo()
 
 	elif event.is_action_pressed("ui_cancel"):
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -75,21 +77,28 @@ func _physics_process(delta: float) -> void:
 	_atualizar_alvo()
 
 
-## Vê o que o raio está acertando e avisa o HUD quando o alvo muda.
+## Vê o que o raio está acertando e avisa o HUD quando o aviso muda.
 ## O raio também enxerga paredes (camada 1), então não dá para examinar através delas.
 func _atualizar_alvo() -> void:
 	var novo: Interagivel = null
 	if raio.is_colliding():
 		novo = raio.get_collider() as Interagivel
-	var alvo_sumiu: bool = alvo_atual != null and not is_instance_valid(alvo_atual)
-	if novo != alvo_atual or alvo_sumiu:
-		_definir_alvo(novo)
-
-
-func _definir_alvo(novo: Interagivel) -> void:
+	# Um item pego só é apagado no fim do quadro; até lá o raio ainda o enxerga.
+	if not _eh_utilizavel(novo):
+		novo = null
 	alvo_atual = novo
-	Jogo.mira_mudou.emit(novo.chave_aviso if novo != null else "")
+
+	# Compara a CHAVE do aviso, não o objeto: comparar com um objeto já apagado
+	# não é confiável no Godot 4 e deixava o aviso preso na tela.
+	var chave: String = novo.chave_aviso if novo != null else ""
+	if chave != _aviso_mostrado:
+		_aviso_mostrado = chave
+		Jogo.mira_mudou.emit(chave)
 
 
 func _alvo_valido() -> bool:
-	return alvo_atual != null and is_instance_valid(alvo_atual)
+	return _eh_utilizavel(alvo_atual)
+
+
+func _eh_utilizavel(objeto: Interagivel) -> bool:
+	return is_instance_valid(objeto) and not objeto.is_queued_for_deletion()
